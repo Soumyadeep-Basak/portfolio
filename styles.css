@@ -170,12 +170,16 @@ h6 {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid hsl(var(--color-border));
   padding-block: var(--space-md);
+  padding-inline: var(--space-xl);
 }
 
 .nav-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: min(1200px, 100%);
+  margin-inline: auto;
+  gap: var(--space-xl);
 }
 
 .nav-brand {
@@ -183,12 +187,14 @@ h6 {
   font-weight: 700;
   color: hsl(var(--color-foreground));
   text-decoration: none;
+  padding: var(--space-sm) var(--space-md);
 }
 
 .nav-links {
   display: flex;
   gap: var(--space-xl);
   list-style: none;
+  padding: var(--space-sm) var(--space-md);
 }
 
 .nav-link {
