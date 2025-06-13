@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading - Soumyadeep Basak</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --text-color: #ffffff;
+            --accent-color: #4a90e2;
+            --node-color: rgba(74, 144, 226, 0.8);
+            --particle-color: rgba(74, 144, 226, 0.3);
+            --progress-bg: rgba(255, 255, 255, 0.1);
+            --progress-fill: #4a90e2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        .loading-container {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(26, 26, 46, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neural-network {
+            width: 300px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .layer {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 100%;
+            position: relative;
+        }
+
+        .node {
+            position: relative;
+            width: 12px;
+            height: 12px;
+            background: var(--node-color);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px var(--accent-color);
+            z-index: 2;
+            margin: 8px 0;
+        }
+
+        .connection {
+            position: absolute;
+            background: var(--node-color);
+            height: 2px;
+            transform-origin: left center;
+            opacity: 0.3;
+            animation: connect 2s infinite;
+            z-index: 1;
+        }
+
+        .loading-messages {
+            height: 100px;
+            position: relative;
+            margin-bottom: 2rem;
+            perspective: 1000px;
+        }
+
+        .message {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            font-size: 1.2rem;
+            opacity: 0;
+            transform: translateY(20px) rotateX(-30deg);
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+        }
+
+        .message.active {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+
+        .message.previous {
+            opacity: 0;
+            transform: translateY(-20px) rotateX(30deg);
+        }
+
+        .progress-container {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--progress-bg);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: var(--progress-fill);
+            animation: progress 6s ease-in-out forwards;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: right;
+            opacity: 0.7;
+            color: var(--accent-color);
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--particle-color);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+            box-shadow: 0 0 5px var(--accent-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes connect {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="loading-container">
+        <div class="neural-network">
+            <!-- Layer 1: 2 neurons -->
+            <div class="layer" id="layer1">
+                <div class="node"></div>
+                <div class="node"></div>
+            </div>
+            <!-- Layer 2: 4 neurons -->
+            <div class="layer" id="layer2">
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+            </div>
+            <!-- Layer 3: 6 neurons -->
+            <div class="layer" id="layer3">
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+            </div>
+            <!-- Layer 4: 4 neurons -->
+            <div class="layer" id="layer4">
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+            </div>
+            <!-- Layer 5: 2 neurons -->
+            <div class="layer" id="layer5">
+                <div class="node"></div>
+                <div class="node"></div>
+            </div>
+        </div>
+        <div class="loading-messages" id="loadingMessages"></div>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            <div class="progress-text">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // Create neural network connections
+        function createConnections() {
+            const layers = document.querySelectorAll('.layer');
+            
+            // Connect nodes between adjacent layers
+            for (let i = 0; i < layers.length - 1; i++) {
+                const currentLayer = layers[i];
+                const nextLayer = layers[i + 1];
+                const currentNodes = currentLayer.querySelectorAll('.node');
+                const nextNodes = nextLayer.querySelectorAll('.node');
+                
+                currentNodes.forEach(node1 => {
+                    nextNodes.forEach(node2 => {
+                        const connection = document.createElement('div');
+                        connection.className = 'connection';
+                        
+                        // Calculate connection position and angle
+                        const rect1 = node1.getBoundingClientRect();
+                        const rect2 = node2.getBoundingClientRect();
+                        const networkRect = document.querySelector('.neural-network').getBoundingClientRect();
+                        
+                        const x1 = rect1.left + rect1.width/2 - networkRect.left;
+                        const y1 = rect1.top + rect1.height/2 - networkRect.top;
+                        const x2 = rect2.left + rect2.width/2 - networkRect.left;
+                        const y2 = rect2.top + rect2.height/2 - networkRect.top;
+                        
+                        const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                        const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                        
+                        connection.style.width = `${length}px`;
+                        connection.style.left = `${x1}px`;
+                        connection.style.top = `${y1}px`;
+                        connection.style.transform = `rotate(${angle}deg)`;
+                        
+                        document.querySelector('.neural-network').appendChild(connection);
+                    });
+                });
+            }
+        }
+
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        const messages = [
+            "Initializing Neural Networks...",
+            "Loading Data Models...",
+            "Training AI Systems...",
+            "Optimizing Parameters...",
+            "Preparing Portfolio..."
+        ];
+
+        const loadingMessages = document.getElementById('loadingMessages');
+        const progressText = document.querySelector('.progress-text');
+
+        // Create message elements
+        messages.forEach((msg, index) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.textContent = msg;
+            loadingMessages.appendChild(messageDiv);
+        });
+
+        const messageElements = document.querySelectorAll('.message');
+        let currentMessageIndex = 0;
+
+        function updateMessage() {
+            // Remove previous active class
+            messageElements.forEach(msg => {
+                msg.classList.remove('active', 'previous');
+            });
+
+            // Add active class to current message
+            messageElements[currentMessageIndex].classList.add('active');
+
+            // Add previous class to last message
+            if (currentMessageIndex > 0) {
+                messageElements[currentMessageIndex - 1].classList.add('previous');
+            }
+
+            currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+        }
+
+        function updateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                progressText.textContent = `${progress}%`;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    sessionStorage.setItem('loaded', 'true');
+                    window.location.href = 'index.html';
+                }
+            }, 40);
+        }
+
+        // Show first message immediately
+        messageElements[0].classList.add('active');
+
+        // Update messages every 0.8 seconds for faster text transitions
+        setInterval(updateMessage, 800);
+        updateProgress();
+
+        // Initialize neural network connections
+        createConnections();
+    </script>
+</body>
+</html> 
