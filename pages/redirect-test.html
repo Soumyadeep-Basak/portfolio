@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Redirect Test</title>
+</head>
+<body>
+    <h1>Testing Redirect in 3 seconds...</h1>
+    <div id="countdown">3</div>
+    
+    <script>
+        let count = 3;
+        const countdownEl = document.getElementById('countdown');
+        
+        const interval = setInterval(() => {
+            count--;
+            countdownEl.textContent = count;
+            console.log('Countdown:', count);
+            
+            if (count <= 0) {
+                clearInterval(interval);
+                console.log('Redirecting to ../index.html');
+                countdownEl.textContent = 'Redirecting...';
+                
+                // Try redirect
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 500);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

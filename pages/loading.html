@@ -10,9 +10,13 @@
             --text-color: #ffffff;
             --accent-color: #4a90e2;
             --node-color: rgba(74, 144, 226, 0.8);
+            --node-active: #00ff88;
+            --node-processing: #ff6b35;
             --particle-color: rgba(74, 144, 226, 0.3);
+            --particle-trail: rgba(74, 144, 226, 0.6);
             --progress-bg: rgba(255, 255, 255, 0.1);
             --progress-fill: #4a90e2;
+            --signal-color: #00ff88;
         }
 
         * {
@@ -75,6 +79,19 @@
             box-shadow: 0 0 10px var(--accent-color);
             z-index: 2;
             margin: 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        .node.active {
+            background: var(--node-active);
+            box-shadow: 0 0 20px var(--node-active);
+            transform: scale(1.3);
+        }
+
+        .node.processing {
+            background: var(--node-processing);
+            box-shadow: 0 0 15px var(--node-processing);
+            animation: processing 0.8s infinite;
         }
 
         .connection {
@@ -85,6 +102,25 @@
             opacity: 0.3;
             animation: connect 2s infinite;
             z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .connection.active {
+            background: var(--signal-color);
+            opacity: 0.8;
+            box-shadow: 0 0 5px var(--signal-color);
+            height: 3px;
+        }
+
+        .signal {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--signal-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--signal-color);
+            z-index: 3;
+            opacity: 0;
         }
 
         .loading-messages {
@@ -100,19 +136,32 @@
             left: 0;
             font-size: 1.2rem;
             opacity: 0;
-            transform: translateY(20px) rotateX(-30deg);
-            transition: all 0.3s ease;
+            transform: translateY(20px) rotateX(-30deg) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+            background: linear-gradient(45deg, #4a90e2, #00ff88, #ff6b35);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 2s ease-in-out infinite;
         }
 
         .message.active {
             opacity: 1;
-            transform: translateY(0) rotateX(0);
+            transform: translateY(0) rotateX(0) scale(1);
+            text-shadow: 0 0 20px rgba(74, 144, 226, 0.8);
         }
 
         .message.previous {
             opacity: 0;
-            transform: translateY(-20px) rotateX(30deg);
+            transform: translateY(-20px) rotateX(30deg) scale(0.8);
+        }
+
+        .message.typing::after {
+            content: '|';
+            animation: blink 1s infinite;
+            color: var(--accent-color);
         }
 
         .progress-container {
@@ -136,8 +185,8 @@
             width: 0%;
             height: 100%;
             background: var(--progress-fill);
-            animation: progress 6s ease-in-out forwards;
             box-shadow: 0 0 10px var(--accent-color);
+            transition: width 0.1s ease-out;
         }
 
         .progress-text {
@@ -168,6 +217,30 @@
             box-shadow: 0 0 5px var(--accent-color);
         }
 
+        .particle.magnetic {
+            background: var(--particle-trail);
+            width: 3px;
+            height: 3px;
+            animation: magneticFloat 8s infinite ease-in-out;
+        }
+
+        .particle.circuit {
+            background: var(--signal-color);
+            width: 2px;
+            height: 2px;
+            animation: circuitFlow 12s infinite linear;
+        }
+
+        .particle-trail {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--particle-trail);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: trailFade 1s ease-out forwards;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -178,15 +251,43 @@
             50% { transform: scale(1.2); opacity: 1; }
         }
 
+        @keyframes processing {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.4); }
+            50% { transform: scale(1.1); }
+            75% { transform: scale(1.4); }
+        }
+
         @keyframes float {
             0% { transform: translateY(0) translateX(0); opacity: 0; }
-            50% { opacity: 0.5; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.3; }
             100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
         }
 
-        @keyframes progress {
-            0% { width: 0%; }
-            100% { width: 100%; }
+        @keyframes magneticFloat {
+            0% { transform: translateY(100vh) translateX(0) scale(1); opacity: 0; }
+            10% { opacity: 0.8; }
+            25% { transform: translateY(75vh) translateX(50px) scale(1.2); }
+            50% { transform: translateY(50vh) translateX(-30px) scale(0.8); }
+            75% { transform: translateY(25vh) translateX(80px) scale(1.1); }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-20vh) translateX(20px) scale(0.5); opacity: 0; }
+        }
+
+        @keyframes circuitFlow {
+            0% { transform: translateX(-50px) translateY(50vh); opacity: 0; }
+            5% { opacity: 1; }
+            25% { transform: translateX(25vw) translateY(30vh); }
+            50% { transform: translateX(50vw) translateY(70vh); }
+            75% { transform: translateX(75vw) translateY(20vh); }
+            95% { opacity: 1; }
+            100% { transform: translateX(100vw) translateY(60vh); opacity: 0; }
+        }
+
+        @keyframes trailFade {
+            from { opacity: 0.8; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.3); }
         }
 
         @keyframes connect {
@@ -194,12 +295,37 @@
             50% { opacity: 0.5; }
             100% { opacity: 0.1; }
         }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes glitch {
+            0% { transform: translateY(0) rotateX(0) scale(1); }
+            10% { transform: translateY(-2px) rotateX(1deg) scale(1.01); }
+            20% { transform: translateY(1px) rotateX(-1deg) scale(0.99); }
+            30% { transform: translateY(-1px) rotateX(0.5deg) scale(1.005); }
+            40% { transform: translateY(0) rotateX(0) scale(1); }
+            100% { transform: translateY(0) rotateX(0) scale(1); }
+        }
     </style>
 </head>
 <body>
     <div class="particles" id="particles"></div>
     <div class="loading-container">
-        <div class="neural-network">
+        <div class="neural-network" id="neuralNetwork">
             <!-- Layer 1: 2 neurons -->
             <div class="layer" id="layer1">
                 <div class="node"></div>
@@ -244,9 +370,13 @@
     </div>
 
     <script>
+        let connections = [];
+        let nodes = [];
+        
         // Create neural network connections
         function createConnections() {
             const layers = document.querySelectorAll('.layer');
+            nodes = document.querySelectorAll('.node');
             
             // Connect nodes between adjacent layers
             for (let i = 0; i < layers.length - 1; i++) {
@@ -255,8 +385,8 @@
                 const currentNodes = currentLayer.querySelectorAll('.node');
                 const nextNodes = nextLayer.querySelectorAll('.node');
                 
-                currentNodes.forEach(node1 => {
-                    nextNodes.forEach(node2 => {
+                currentNodes.forEach((node1, idx1) => {
+                    nextNodes.forEach((node2, idx2) => {
                         const connection = document.createElement('div');
                         connection.className = 'connection';
                         
@@ -278,84 +408,369 @@
                         connection.style.top = `${y1}px`;
                         connection.style.transform = `rotate(${angle}deg)`;
                         
+                        // Store connection data for animations
+                        connections.push({
+                            element: connection,
+                            fromNode: node1,
+                            toNode: node2,
+                            length: length,
+                            angle: angle,
+                            x1: x1,
+                            y1: y1,
+                            x2: x2,
+                            y2: y2
+                        });
+                        
                         document.querySelector('.neural-network').appendChild(connection);
                     });
                 });
             }
         }
 
-        // Create floating particles
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 50; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 15 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
-            particlesContainer.appendChild(particle);
+        // Animate neural network activity
+        function animateNeuralNetwork() {
+            // Faster neural network animation for 4-second timeline
+            setInterval(() => {
+                // Clear previous states
+                nodes.forEach(node => {
+                    node.classList.remove('active', 'processing');
+                });
+                connections.forEach(conn => {
+                    conn.element.classList.remove('active');
+                });
+
+                // Select random path through network
+                const layers = document.querySelectorAll('.layer');
+                let activeNodes = [];
+                
+                // Pick one node from each layer
+                layers.forEach((layer, layerIndex) => {
+                    const layerNodes = layer.querySelectorAll('.node');
+                    const randomIndex = Math.floor(Math.random() * layerNodes.length);
+                    const selectedNode = layerNodes[randomIndex];
+                    activeNodes.push(selectedNode);
+                    
+                    setTimeout(() => {
+                        selectedNode.classList.add('processing');
+                        setTimeout(() => {
+                            selectedNode.classList.remove('processing');
+                            selectedNode.classList.add('active');
+                        }, 150); // Faster processing
+                    }, layerIndex * 100); // Faster layer progression
+                });
+
+                // Activate connections between selected nodes
+                setTimeout(() => {
+                    connections.forEach(conn => {
+                        if (activeNodes.includes(conn.fromNode) && activeNodes.includes(conn.toNode)) {
+                            conn.element.classList.add('active');
+                            createSignal(conn);
+                        }
+                    });
+                }, 200); // Faster activation
+
+            }, 800); // More frequent updates
+        }
+
+        // Create signal animation along connections
+        function createSignal(connection) {
+            const signal = document.createElement('div');
+            signal.className = 'signal';
+            signal.style.left = connection.x1 + 'px';
+            signal.style.top = connection.y1 + 'px';
+            
+            document.querySelector('.neural-network').appendChild(signal);
+            
+            // Animate signal along connection
+            let progress = 0;
+            const duration = 800;
+            const startTime = Date.now();
+            
+            function animateSignal() {
+                const elapsed = Date.now() - startTime;
+                progress = Math.min(elapsed / duration, 1);
+                
+                const x = connection.x1 + (connection.x2 - connection.x1) * progress;
+                const y = connection.y1 + (connection.y2 - connection.y1) * progress;
+                
+                signal.style.left = x + 'px';
+                signal.style.top = y + 'px';
+                signal.style.opacity = Math.sin(progress * Math.PI); // Fade in and out
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateSignal);
+                } else {
+                    signal.remove();
+                }
+            }
+            
+            requestAnimationFrame(animateSignal);
+        }
+
+        // Create advanced particle system
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            // Regular floating particles
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Magnetic particles that are attracted to neural activity
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle magnetic';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 6 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Circuit-flow particles
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle circuit';
+                particle.style.animationDelay = Math.random() * 12 + 's';
+                particle.style.animationDuration = (Math.random() * 8 + 6) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Create particle trails
+        function createTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'particle-trail';
+            trail.style.left = x + 'px';
+            trail.style.top = y + 'px';
+            document.getElementById('particles').appendChild(trail);
+            
+            setTimeout(() => trail.remove(), 1000);
+        }
+
+        // Add interactive particle effects
+        function addInteractiveEffects() {
+            document.addEventListener('mousemove', (e) => {
+                if (Math.random() < 0.1) { // 10% chance to create trail
+                    createTrail(e.clientX, e.clientY);
+                }
+            });
         }
 
         const messages = [
-            "Initializing Neural Networks...",
-            "Loading Data Models...",
-            "Training AI Systems...",
-            "Optimizing Parameters...",
-            "Preparing Portfolio..."
+            "Initializing Neural Networks",
+            "Training AI Systems", 
+            "Preparing Portfolio"
         ];
 
         const loadingMessages = document.getElementById('loadingMessages');
         const progressText = document.querySelector('.progress-text');
 
-        // Create message elements
+        // Create message elements with typewriter effect
         messages.forEach((msg, index) => {
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
-            messageDiv.textContent = msg;
+            messageDiv.textContent = '';
+            messageDiv.dataset.fullText = msg;
             loadingMessages.appendChild(messageDiv);
         });
 
         const messageElements = document.querySelectorAll('.message');
         let currentMessageIndex = 0;
 
+        function typewriterEffect(element, text, callback) {
+            element.textContent = '';
+            element.classList.add('typing');
+            let i = 0;
+            const timer = setInterval(() => {
+                element.textContent += text[i];
+                i++;
+                if (i >= text.length) {
+                    clearInterval(timer);
+                    element.classList.remove('typing');
+                    if (callback) callback();
+                }
+            }, 30); // Fast typing speed
+        }
+
         function updateMessage() {
+            // Only proceed if we haven't shown all messages
+            if (currentMessageIndex >= messages.length) {
+                return;
+            }
+
             // Remove previous active class
             messageElements.forEach(msg => {
                 msg.classList.remove('active', 'previous');
             });
 
-            // Add active class to current message
-            messageElements[currentMessageIndex].classList.add('active');
+            const currentMessage = messageElements[currentMessageIndex];
+            currentMessage.classList.add('active');
+            
+            // Add glitch effect occasionally
+            if (Math.random() < 0.3) {
+                currentMessage.style.animation = 'glitch 0.5s ease-in-out';
+                setTimeout(() => {
+                    currentMessage.style.animation = '';
+                }, 500);
+            }
+
+            // Typewriter effect for current message
+            typewriterEffect(currentMessage, currentMessage.dataset.fullText);
 
             // Add previous class to last message
             if (currentMessageIndex > 0) {
                 messageElements[currentMessageIndex - 1].classList.add('previous');
             }
 
-            currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+            currentMessageIndex++;
         }
 
         function updateProgress() {
+            console.log('Starting progress function'); // Debug
+            
             let progress = 0;
+            const totalDuration = 3000; // 3 seconds (reduced from 5)
+            const updateInterval = 100; // 100ms intervals
+            const increment = (100 / (totalDuration / updateInterval)); // ~3.33% per update
+            
+            const progressBar = document.querySelector('.progress');
+            const progressTextEl = document.querySelector('.progress-text');
+            
+            if (!progressBar) {
+                console.error('Progress bar element not found!');
+                return;
+            }
+            if (!progressTextEl) {
+                console.error('Progress text element not found!');
+                return;
+            }
+            
+            console.log('Progress elements found, starting interval');
+            
             const interval = setInterval(() => {
-                progress += 1;
-                progressText.textContent = `${progress}%`;
+                progress += increment;
+                const displayProgress = Math.min(100, Math.floor(progress));
+                
+                console.log(`Progress: ${displayProgress}%`);
+                
+                // Update display
+                progressTextEl.textContent = `${displayProgress}%`;
+                progressBar.style.width = `${displayProgress}%`;
+                
+                // Check for completion
                 if (progress >= 100) {
+                    console.log('Progress reached 100%, clearing interval');
                     clearInterval(interval);
-                    sessionStorage.setItem('loaded', 'true');
-                    window.location.href = '../index.html';
+                    
+                    progressTextEl.textContent = '100%';
+                    progressBar.style.width = '100%';
+                    
+                    console.log('Starting redirect countdown...');
+                    
+                    // Force redirect after short delay
+                    setTimeout(() => {
+                        console.log('REDIRECTING NOW!');
+                        
+                        // Set flag to prevent redirect loop
+                        sessionStorage.setItem('loaded', 'true');
+
+                        // Multiple redirect attempts
+                        try {
+                            window.location.replace('../index.html');
+                        } catch (e1) {
+                            console.error('Replace failed, trying href:', e1);
+                            try {
+                                window.location.href = '../index.html';
+                            } catch (e2) {
+                                console.error('Href failed, trying assign:', e2);
+                                window.location.assign('../index.html');
+                            }
+                        }
+                    }, 100); // Very short delay
                 }
-            }, 40);
+            }, updateInterval);
+            
+            console.log('Interval set up successfully');
         }
 
-        // Show first message immediately
-        messageElements[0].classList.add('active');
+        // Initialize everything
+        function init() {
+            console.log('=== LOADING PAGE INITIALIZED ===');
+            
+            // IMMEDIATE FAILSAFE: Redirect after 4 seconds no matter what
+            setTimeout(() => {
+                console.log('=== FAILSAFE REDIRECT TRIGGERED ===');
+                sessionStorage.setItem('loaded', 'true');
+                window.location.replace('../index.html');
+            }, 4000);
+            
+            try {
+                // Start with first message immediately
+                const firstMessage = messageElements[0];
+                if (firstMessage) {
+                    firstMessage.classList.add('active');
+                    typewriterEffect(firstMessage, firstMessage.dataset.fullText);
+                    currentMessageIndex = 1;
+                }
+                
+                // Update messages every 1 second
+                const messageInterval = setInterval(() => {
+                    updateMessage();
+                    if (currentMessageIndex >= messages.length) {
+                        clearInterval(messageInterval);
+                        console.log('All messages completed');
+                    }
+                }, 1000);
+                
+                // Start progress - THIS IS THE KEY PART
+                console.log('Starting progress...');
+                updateProgress();
+                
+            } catch (error) {
+                console.error('Error in init:', error);
+                // If anything fails, still redirect after 3 seconds
+                setTimeout(() => {
+                    console.log('Error fallback redirect');
+                    sessionStorage.setItem('loaded', 'true');
+                    window.location.replace('../index.html');
+                }, 3000);
+            }
+            
+            try {
+                // Initialize neural network
+                createConnections();
+                setTimeout(() => animateNeuralNetwork(), 500);
+                createParticles();
+                addInteractiveEffects();
+            } catch (error) {
+                console.error('Animation error (non-critical):', error);
+            }
+        }
 
-        // Update messages every 0.8 seconds for faster text transitions
-        setInterval(updateMessage, 800);
-        updateProgress();
-
-        // Initialize neural network connections
-        createConnections();
+        // Start when page loads
+        window.addEventListener('load', init);
+        
+        // NUCLEAR FAILSAFE - Multiple redirect attempts
+        setTimeout(() => {
+            console.log('=== NUCLEAR FAILSAFE 1 - 5 seconds ===');
+            sessionStorage.setItem('loaded', 'true');
+            try { window.location.replace('../index.html'); } catch(e) { 
+                try { window.location.href = '../index.html'; } catch(e2) {
+                    window.location.assign('../index.html');
+                }
+            }
+        }, 5000);
+        
+        setTimeout(() => {
+            console.log('=== NUCLEAR FAILSAFE 2 - 6 seconds ===');
+            sessionStorage.setItem('loaded', 'true');
+            window.location = '../index.html';
+        }, 6000);
     </script>
 </body>
-</html> 
+</html>

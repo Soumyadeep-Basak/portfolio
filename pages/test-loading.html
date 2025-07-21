@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        .progress-bar {
+            width: 300px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            margin: 20px auto;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #4a90e2;
+            transition: width 0.1s ease-out;
+        }
+        .message {
+            font-size: 18px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Loading Test</h1>
+    <div class="message" id="message">Testing progress bar...</div>
+    <div class="progress-bar">
+        <div class="progress" id="progressBar"></div>
+    </div>
+    <div id="progressText">0%</div>
+
+    <script>
+        function testProgress() {
+            let progress = 0;
+            const totalDuration = 3000; // 3 seconds for testing
+            const updateInterval = 100;
+            const incrementPerUpdate = (100 * updateInterval) / totalDuration;
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const message = document.getElementById('message');
+            
+            message.textContent = 'Progress starting...';
+            
+            const interval = setInterval(() => {
+                progress += incrementPerUpdate;
+                const progressPercent = Math.min(Math.floor(progress), 100);
+                
+                progressText.textContent = `${progressPercent}%`;
+                progressBar.style.width = `${progressPercent}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    progressText.textContent = '100%';
+                    progressBar.style.width = '100%';
+                    message.textContent = 'Complete! Redirecting...';
+                    
+                    setTimeout(() => {
+                        console.log('Attempting redirect to ../index.html');
+                        window.location.href = '../index.html';
+                    }, 1000);
+                }
+            }, updateInterval);
+        }
+        
+        // Start test when page loads
+        window.addEventListener('load', () => {
+            setTimeout(testProgress, 1000);
+        });
+    </script>
+</body>
+</html>
